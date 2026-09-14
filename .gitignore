@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+*.local.jsonl
+data/*.jsonl
+data/*.jsonl.bak
+.backup/
+*.log
+frontend/web/extension.zip
+
+# esbuild 编译产物
+frontend/extension/content.js

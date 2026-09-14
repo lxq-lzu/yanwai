@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>言外 · 网页 Demo</title>
+<link rel="stylesheet" href="/src/styles.css" />
+<style>
+  /* 这里只是 Demo 页面本身的排版样式,跟气泡内部样式(Shadow DOM)完全隔离,
+     删掉这段 <style> 只影响这个演示页的外观,不影响 core/bubble.ts 一行代码。 */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f6f6f6;
+    color: #1a1a1a;
+  }
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+  .hint {
+    background: #fff8e6;
+    border: 1px solid #f0d78c;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #7a5c00;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .QuestionHeader {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .QuestionHeader-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .QuestionHeader-detail {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+  .AnswerItem {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .AuthorInfo-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a1a1a;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .AnswerItem p {
+    line-height: 1.9;
+    font-size: 15px;
+    margin: 0 0 10px;
+  }
+  .AnswerItem blockquote {
+    border-left: 3px solid #ddd;
+    margin: 10px 0;
+    padding: 4px 12px;
+    color: #666;
+    font-size: 14px;
+  }
+  .Comments {
+    margin-top: 14px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+  }
+  .Comment {
+    font-size: 13px;
+    color: #444;
+    padding: 4px 0;
+  }
+  .Comment .AuthorInfo-name {
+    display: inline;
+    font-weight: 500;
+    font-size: 13px;
+    margin: 0;
+  }
+  .demo-panel {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    position: sticky;
+    bottom: 0;
+  }
+  .demo-panel h2 {
+    font-size: 15px;
+    margin: 0 0 10px;
+  }
+  .demo-panel-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .demo-panel button {
+    border: 1px solid #d8e8ff;
+    background: #f0f7ff;
+    color: #0084ff;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .demo-panel button:hover {
+    background: #e2f0ff;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hint">
+    这是「言外」的网页 Demo：一份<strong>真实知乎回答</strong>的静态快照。选中任意一段文字（≥4 字），气泡即弹出，
+    从「术语解释、热点关联、潜台词解读、社区理解」四个角度，帮你看懂看不懂的内容。
+    每条标注作者、发布时间与原文出处；赶时间也可点底部「精选示例」一键模拟划词。
+  </div>
+
+  <div class="QuestionHeader">
+    <h1 class="QuestionHeader-title">帮你看懂看不懂的内容</h1>
+    <p class="QuestionHeader-detail">看不懂一段话，可能是一个崭新的热点、一个最新的潮流、一个新鲜的热梗、一段富含故事的典故、一个巧妙的话术……言外希望能帮你跳出隐晦的表达、知识的局限，理解文本背后的丰富含义。而这些含义又常随发布时间漂移，所以每条都标了发布时间。选中下面任意一段，直接划词试试。</p>
+  </div>
+
+  <div class="AnswerItem" data-zop='{"type":"answer","id":"2051977938174752632","authorName":"金银妖瞳"}'>
+    <span class="AuthorInfo-name">时政 · TACO</span>
+    <p><span id="ex-taco">这就是特总的TACO+战术啊。一开始就选择风险最大、收益也最大的选项一把梭哈。赢就通吃。<br>输就果断止损，不要脸皮、甚至可以付出一部分实际利益那那种果断止损。<br>其实，如果你不把美国仍然当成是蓝星第一强权看待的话，这种TACO战术是短时间内极为有效，<br>能为美国带来大量实际利益的玩法。比如"对天下万国宣战"(贸易战)，除了在东大这边taco了，<br>其他国家都是大赢特赢。比如对委内瑞拉的突袭，也是大赢特赢。就算伊朗这边碰上了铁板<br>果断止损的情况下，老美的实际利益也没损失多少，搞不好还要大赚一笔，比如那3000亿的<br>重建资金，一包肯定是美国公司拿大头。</span></p>
+    <p style="margin:10px 0 0;font-size:12px;color:#8590a6;">金银妖瞳 · 用户给定 · <a href="https://www.zhihu.com/question/2050504160483741924/answer/2051977938174752632" target="_blank" rel="noopener" style="color:#8590a6;text-decoration:none;">原文链接</a></p>
+  </div>
+
+  <div class="AnswerItem" data-zop='{"type":"answer","id":"2041462554501845126","authorName":"飞跃本屯","publishedAt":"2026-05-23"}'>
+    <span class="AuthorInfo-name">时政 · 莫迪老仙</span>
+    <p><span id="ex-modi">这倒不都是莫迪老仙的锅，印度经济本身就是一个依赖债务，但借债又不是为了创造更多财富基础的国家。所以印度GDP的变化，在老仙执政前后，都和心电图 一样——<br>对比下我国的——<br>两国的经济增速曲线这么大差异，主要是因为两国借债后使用方向不同。<br>中国借债后主要是用于扩大生产力，生产力上去了就能按时把钱还了，然后再借钱自然容易。只要控制住别胡乱借钱，日子就能过的平稳。<br>而印度借债后主要是为了消费，可消费把钱花出去了，还钱的时候怎么办？<br>除了赖账外，自己还得让老百姓过一段苦日子把钱凑上一部分，把那些惹不起的主的钱还了。<br>等上一笔债处理的差不多后，就能再次借来一笔钱，迎来几年好日子。<br>如此重复循环，造就了印度心电图一样的经济增速曲线。</span></p>
+    <p style="margin:10px 0 0;font-size:12px;color:#8590a6;">飞跃本屯 · 2026-05-23 · <a href="https://www.zhihu.com/question/2040860418759997292/answer/2041462554501845126" target="_blank" rel="noopener" style="color:#8590a6;text-decoration:none;">原文链接</a></p>
+  </div>
+
+  <div class="AnswerItem" data-zop='{"type":"answer","id":"2036387202041631242","authorName":"达摩在","publishedAt":"2026-05-09"}'>
+    <span class="AuthorInfo-name">中国历史 · 何不食肉糜</span>
+    <p><span id="ex-roumi">遇上灾年，晋惠帝司马衷：百姓没饭吃，何不食肉糜？这叫蠢！<br>清圣祖康熙：粮食不够吃，让汉人每天少吃一顿饭。这叫坏！<br>众所周知，司马衷是个傻子，智障皇帝。他智商低，但他知道老百姓需要吃饭。<br>发生大饥荒，他没有推卸责任，没有冷眼旁观，他以有限的智力水平，想到自己每天吃肉粥，就想到让老百姓也吃肉粥，这样就能活命了。<br>他弱智，他蠢，但他确实在想办法，他想让老百姓能活下去。虽然这个办法很荒谬。<br>反观康熙，同样遇到大灾荒，他是怎么说的？<br>【朕一日两餐，当年出师塞外，也曾日食一餐。尔等汉人若能如此，则一日之食，可足两食，奈何其不然也？——《清稗类钞·饮食类·圣祖一日二餐》】</span></p>
+    <p style="margin:10px 0 0;font-size:12px;color:#8590a6;">达摩在 · 2026-05-09 · <a href="https://www.zhihu.com/question/531691193/answer/2036387202041631242" target="_blank" rel="noopener" style="color:#8590a6;text-decoration:none;">原文链接</a></p>
+  </div>
+
+  <div class="AnswerItem" data-zop='{"type":"answer","id":"2068555187648717781","authorName":"用户名必填","publishedAt":"2026-08-05"}'>
+    <span class="AuthorInfo-name">知乎梗 · 人在美国刚下飞机</span>
+    <p><span id="ex-america">人在美国刚下飞机<br>美国最让人震惊的就是有着世界最高的GDP但服务质量却奇差无比。<br>这两天东京呆无聊了，一拍脑袋跑到LA，不得不说这个素质真的差，一上Delta的飞机就知道这TM真美国。<br>一上飞机乘务员都哇啦哇啦的，聊天声音巨响，然后餐饮跟我说这个叫日料，美国人的创意就是这样，吃了一口真的不知道怎么形容，黑暗料理界的王。<br>一下飞机跳上出租车，感觉这的出租车只要能开就敢上路，破破烂烂的丰田塞纳，里面东破个洞西坏一点的，开到70mile整个车都在抖，还得给15%的小费，一比东京的出租车都还挺有性价比。<br>好不容易到酒店，这次想想住个dochester collection的吧应该不会太差，但一进去就不知道自己的钱花哪了。</span></p>
+    <p style="margin:10px 0 0;font-size:12px;color:#8590a6;">用户名必填 · 2026-08-05 · <a href="https://www.zhihu.com/question/510075038/answer/2068555187648717781" target="_blank" rel="noopener" style="color:#8590a6;text-decoration:none;">原文链接</a></p>
+  </div>
+
+  <div class="AnswerItem" data-zop='{"type":"answer","id":"2055604937296499813","authorName":"polokinger","publishedAt":"2026-07-02"}'>
+    <span class="AuthorInfo-name">世界历史 · 乳法</span>
+    <p><span id="ex-rufa">b站某个历史博主经常玩乳法梗，结果几年前他因为转发了一个日本人关于女性的黑色幽默段子被微博上的女用户团建，你猜猜他道歉速度有多快？<br>当天下午就道歉了。<br>现在互联网上乳法梗最恶毒的地方就是，给很多完全没了解过这段历史的人一个错觉就是法国开局就投降了，但事实上法国是真的打输了才投降的。<br>只是因为德军的战略和法国自己的判断失误导致败得太快，这个的确是颠覆了大家对当时法国这么一个陆军大国的刻板印象。<br>法国这仗打得烂不假，但是你给全体法国男性扣一顶软弱的帽子就真的没道理了。<br>让·穆兰在法国沦陷后一直在沦陷区组织抵抗运动，最后被盖世太保抓捕英勇牺牲，难道他不是法国男性？<br>亨利·弗雷奈他是法国本土最早成立的抵抗组织之一"战斗"（Combat）的创始人。</span></p>
+    <p style="margin:10px 0 0;font-size:12px;color:#8590a6;">polokinger · 2026-07-02 · <a href="https://www.zhihu.com/question/2024305715301349097/answer/2055604937296499813" target="_blank" rel="noopener" style="color:#8590a6;text-decoration:none;">原文链接</a></p>
+  </div>
+
+  <div class="AnswerItem" data-zop='{"type":"answer","id":"2080992562031216526","authorName":"80后IT熊","publishedAt":"2026-09-09"}'>
+    <span class="AuthorInfo-name">游戏 · 电子阳痿</span>
+    <p><span id="ex-yangwei">"电子阳痿" 这词儿确实早就有了，不是啥新鲜词，但架不住最近这症状是越来越普遍了，以前还只是个别玩家自嘲，现在你去游戏论坛逛逛，十个里有八个说自己阳痿了，剩下两个还在嘴硬。<br>说白了就是 3A 大作越买越多，越玩越累，打开游戏半小时就关了，不是游戏不好玩，是真的玩不动了。你想啊，现在的 3A 大作一个比一个卷，地图越做越大，内容越塞越多，任务列表密密麻麻跟工作清单似的。你下班回家累得跟狗似的，打开游戏还得做任务、清问号、刷材料、打 BOSS，跟加班有啥区别？玩游戏本来是放松的，结果比上班还累，那不阳痿才怪。<br>这时候放置类游戏就成了救命稻草。<br>这玩意儿的核心逻辑就一个字：躺。<br>你不用盯着屏幕操作，不用记复杂的机制，不用赶活动节奏，挂着机它自己就把活儿干了。<br>你上班的时候它在后台打怪升级，你睡觉的时候它在自动刷装备，等你想起来点开一看，嚯，又变强了，那种 "我啥也没干就有收获" 的爽感，3A 大作根本给不了。</span></p>
+    <p style="margin:10px 0 0;font-size:12px;color:#8590a6;">80后IT熊 · 2026-09-09 · <a href="https://www.zhihu.com/question/2072239787621323748/answer/2080992562031216526" target="_blank" rel="noopener" style="color:#8590a6;text-decoration:none;">原文链接</a></p>
+  </div>
+
+  <div class="AnswerItem" data-zop='{"type":"answer","id":"3078770065","authorName":"猴子老湿","publishedAt":"2023-06-18"}'>
+    <span class="AuthorInfo-name">热点 · 鼠头鸭脖</span>
+    <p><span id="ex-yabo">江西省级调查结果出炉后，有人在感慨公信力的丧失，有人在为调查结果欢呼，但是我看到的却是——我们这个社会，纠错需要付出巨大代价。<br>这一点是非常可怕的。无论在历史中，还是在近几年的重大事件中，我们都能发现，纠错，特别是及时纠错、以尽量小的代价纠错，是非常宝贵的制度设计。<br>在一个具备自我纠错能力的社会，指鼠为鸭完全不需要省级层面纠错力量介入。<br>就拿这个事件来说，在学生发现食堂的饭食中存在异物时，不管是鸭脖还是鼠头，都能反映出该食堂存在卫生状况问题。更进一步说，即便是鸭脖，除非学生点的餐食的成分含有鸭脖，否则都可以视为食堂卫生管控不力。<br>此时，市场监督管理部门可以依法调查、处罚，而不是为食堂找合法的理由。<br>在市场监督管理部门认定异物为鸭脖而不是鼠头之后，有行政执法监督职权的检察院完全可以介入监督。当事的学生，也可以对市场监督管理部门的调查结论提出异议，申请复议，甚至是申请检察院进行监督。<br>同时，学生还可以向法院起诉学校，以消费者身份要求学校食堂进行赔偿，法院可以顺势对异物是鸭脖，还是鼠头进行检测或鉴定，进而作出判决。<br>但是，很遗憾，我们看到，当事的南昌高新区市场监督管理局昌东分局完全不作为，甚至是乱作为，当地检察院完全无反应，当事学生被禁言，更不能指望一个孱弱的学生，在有关部门指鼠为鸭之后再向法院起诉或者申请检察院监督。<br>所以，我们所有建构的正式纠错机制，此时完全没有发挥作用。<br>唯一发挥作用的是媒体的监督，正是因为舆论势大，才导致江西省级部门不得不介入。<br>但也可以说，在本次事件中，江西有关市级及以下机关，完全丧失履职能力。</span></p>
+    <p style="margin:10px 0 0;font-size:12px;color:#8590a6;">猴子老湿 · 2023-06-18 · <a href="https://www.zhihu.com/question/607131041/answer/3078770065" target="_blank" rel="noopener" style="color:#8590a6;text-decoration:none;">原文链接</a></p>
+  </div>
+
+  <div class="demo-panel">
+    <h2>精选示例(点击模拟划词)</h2>
+    <div class="demo-panel-buttons">
+      <button type="button" data-target="ex-taco">TACO</button>
+      <button type="button" data-target="ex-modi">莫迪老仙</button>
+      <button type="button" data-target="ex-roumi">何不食肉糜</button>
+      <button type="button" data-target="ex-america">人在美国刚下飞机</button>
+      <button type="button" data-target="ex-rufa">乳法</button>
+      <button type="button" data-target="ex-yangwei">电子阳痿</button>
+      <button type="button" data-target="ex-yabo">鼠头鸭脖</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { createYanwaiApp } from '/src/app.js';
+
+  const mount = document.createElement('div');
+  mount.className = 'yanwai-mount';
+  document.body.appendChild(mount);
+
+  createYanwaiApp({ mount, accentColor: '#0084FF' });
+
+  /**
+   * 精选示例按钮:走真实的浏览器 Selection API 选中目标文字,
+   * 再派发一个真实会冒泡/穿透 Shadow DOM 的 mouseup 事件——
+   * 跟用户真的用鼠标划词走的是完全一样的路径(core/selection.ts 的
+   * document 捕获监听器),不是走后门直接调用内部函数。
+   */
+  function simulateSelect(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    const rect = range.getBoundingClientRect();
+    const evt = new MouseEvent('mouseup', {
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+      clientX: rect.left + rect.width / 2,
+      clientY: rect.top + rect.height / 2,
+    });
+    // 标记这是用户主动点击示例按钮触发的选区,跳过 60 秒去重——
+    // 去重是防误触/拖选反复触发,不该拦截连点两次同一个示例按钮(见 F6 修复记录)
+    evt.__yanwaiBypassDedupe = true;
+    el.dispatchEvent(evt);
+  }
+
+  document.querySelectorAll('.demo-panel button').forEach((btn) => {
+    btn.addEventListener('click', () => simulateSelect(btn.dataset.target));
+  });
+</script>
+</body>
+</html>

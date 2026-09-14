@@ -1,0 +1,22 @@
+/**
+ * 言外 · 宿主页面级样式
+ *
+ * 只影响 app.ts 挂载气泡用的 mount 容器本身(定位上下文),
+ * 气泡内部样式全部在 core/bubble.ts 的 Shadow DOM 里,不会泄漏到这里,
+ * 这个文件也不会污染气泡内部——两边互不可见,删掉这个文件不影响气泡渲染。
+ */
+
+.yanwai-mount {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 2147483647;
+}
+
+.yanwai-demo-highlight {
+  background: rgba(0, 132, 255, 0.15);
+  border-radius: 2px;
+}

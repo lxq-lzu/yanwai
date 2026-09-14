@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "言外 · 知乎划词解析",
+  "version": "0.1.0",
+  "description": "在知乎页面上划词，一句话说人话 + 融合正文解释（术语 / 潜台词 / 热点 / 社区共识）。",
+  "host_permissions": [
+    "http://localhost:8787/*",
+    "https://yanwai.lixq.net/*"
+  ],
+  "permissions": [
+    "contextMenus"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.zhihu.com/*",
+        "https://zhihu.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

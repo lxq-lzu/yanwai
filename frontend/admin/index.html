@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>言外 · 管理后台</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6f8;
+    color: #1a1a1a;
+    padding: 24px 20px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #8590a6; font-size: 13px; margin: 0 0 20px; }
+  .card {
+    background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .card h2 { font-size: 15px; margin: 0 0 14px; }
+  .auth { display: flex; gap: 8px; margin-bottom: 20px; }
+  .auth input {
+    flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;
+  }
+  button {
+    border: 1px solid #0084ff; background: #fff; color: #0084ff;
+    border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+  }
+  button:hover { background: #eaf4ff; }
+  button.primary { background: #0084ff; color: #fff; }
+  button.danger { border-color: #f1403c; color: #f1403c; }
+  button.danger:hover { background: #fdecea; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #f0f0f0; }
+  th { color: #8590a6; font-weight: 500; }
+  td input[type=text], td input[type=number] {
+    width: 100%; padding: 6px 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px;
+  }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-name { font-weight: 500; font-size: 14px; }
+  .toggle-hint { color: #8590a6; font-size: 12px; }
+  .switch { position: relative; width: 42px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; inset: 0; background: #ccc; border-radius: 24px; transition: .2s;
+  }
+  .slider:before {
+    content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%; transition: .2s;
+  }
+  .switch input:checked + .slider { background: #0084ff; }
+  .switch input:checked + .slider:before { transform: translateX(18px); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .stat { background: #f7f9fc; border-radius: 8px; padding: 12px; }
+  .stat .num { font-size: 22px; font-weight: 600; }
+  .stat .label { color: #8590a6; font-size: 12px; }
+  .msg { font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .msg.ok { color: #12a454; }
+  .msg.err { color: #f1403c; }
+  .masked { color: #8590a6; font-family: monospace; }
+  code { background: #f2f3f5; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>言外 · 管理后台</h1>
+  <p class="sub">模块开关 · 可变配置 · 使用数据 · 存储管理 · 运行错误</p>
+
+  <div class="auth">
+    <input id="token" type="password" placeholder="ADMIN_TOKEN" autocomplete="off" />
+    <button class="primary" id="applyToken">应用</button>
+    <button id="clearToken">清除</button>
+  </div>
+
+  <!-- ① 模块开关 -->
+  <div class="card">
+    <h2>① 模块开关</h2>
+    <div id="features"></div>
+  </div>
+
+  <!-- ② 可变配置 -->
+  <div class="card">
+    <h2>② 可变配置 <span style="color:#8590a6;font-weight:400;font-size:12px;">（密钥只回显后四位）</span></h2>
+    <div id="config"></div>
+    <div class="actions" style="margin-top:12px;">
+      <button class="primary" id="saveConfig">保存修改</button>
+    </div>
+    <div class="msg" id="configMsg"></div>
+  </div>
+
+  <!-- ③ 使用数据 -->
+  <div class="card">
+    <h2>③ 使用数据</h2>
+    <div class="stats" id="usage"></div>
+    <div class="actions" style="margin-top:12px;">
+      <button id="refreshUsage">刷新</button>
+    </div>
+  </div>
+
+  <!-- ④ 存储管理 -->
+  <div class="card">
+    <h2>④ 存储管理</h2>
+    <div id="storage"></div>
+  </div>
+
+  <!-- ⑤ 运行错误 -->
+  <div class="card">
+    <h2>⑤ 运行错误</h2>
+    <div id="errors"></div>
+    <div class="actions" style="margin-top:12px;">
+      <button id="refreshErrors">刷新</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const tokenKey = 'yanwai_admin_token';
+
+function getToken() { return localStorage.getItem(tokenKey) || ''; }
+function setToken(t) { localStorage.setItem(tokenKey, t); }
+function clearToken() { localStorage.removeItem(tokenKey); }
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: { 'X-Admin-Token': getToken(), 'Content-Type': 'application/json', ...(opts.headers || {}) },
+  });
+  if (res.status === 401) {
+    if (!getToken()) throw new Error('请先输入 ADMIN_TOKEN');
+    throw new Error('未授权：ADMIN_TOKEN 不正确');
+  }
+  if (res.status === 503) throw new Error('管理后台未配置：请在服务端设置 ADMIN_TOKEN');
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.detail || body.error || `HTTP ${res.status}`);
+  return body;
+}
+
+function msg(id, text, ok) {
+  const el = $(id);
+  el.textContent = text;
+  el.className = 'msg ' + (ok ? 'ok' : 'err');
+}
+
+// HTML 转义:运行错误消息可能含上游/异常返回的任意文本,插入 innerHTML 前先转义防注入
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// ① 模块开关
+const FEATURES = [
+  ['zhihuSearch', '知乎搜索'],
+  ['hotList', '知乎热榜'],
+  ['globalSearch', '全网搜索'],
+  ['zhida', '知乎直答'],
+  ['community', '社区 API'],
+  ['oauth', 'OAuth 登录'],
+];
+// 这三项在 dispatcher 模块加载时建一次 Provider,运行时切换不改已建列表,需重启才生效(见 STATUS 5.2)
+const RESTART_REQUIRED = new Set(['zhihuSearch', 'hotList', 'globalSearch']);
+
+async function loadFeatures() {
+  const data = await api('/admin/features');
+  const el = $('features');
+  el.innerHTML = '';
+  for (const [key, label] of FEATURES) {
+    const row = document.createElement('div');
+    row.className = 'toggle-row';
+    const on = !!data.features[key];
+    const restartTag = RESTART_REQUIRED.has(key) ? ' <span style="color:#f1403c;">需重启生效</span>' : '';
+    row.innerHTML = `
+      <div><div class="toggle-name">${label}${restartTag}</div><div class="toggle-hint"><code>${key}</code></div></div>
+      <label class="switch"><input type="checkbox" data-key="${key}" ${on ? 'checked' : ''}><span class="slider"></span></label>`;
+    el.appendChild(row);
+  }
+  el.querySelectorAll('input[type=checkbox]').forEach((cb) => {
+    cb.addEventListener('change', async () => {
+      const label = (FEATURES.find(([k]) => k === cb.dataset.key) || ['', ''])[1];
+      try {
+        await api('/admin/features', { method: 'POST', body: JSON.stringify({ [cb.dataset.key]: cb.checked }) });
+        if (RESTART_REQUIRED.has(cb.dataset.key)) {
+          msg('configMsg', `「${label}」已切换，需重启服务后生效`, false);
+        } else {
+          msg('configMsg', `「${label}」已切换`, true);
+        }
+      } catch (e) {
+        msg('configMsg', String(e.message || e), false);
+        cb.checked = !cb.checked; // 回滚
+      }
+    });
+  });
+}
+
+// ② 可变配置
+const MUTABLE_FIELDS = [
+  ['deepseek.model', '主链路模型名', 'string'],
+  ['zhihu.zhidaModel', '直答模型名', 'string'],
+  ['searchQuota.dailyBudget', '搜索额度预算', 'number'],
+  ['cache.ttlStableMs', '缓存 TTL（稳定·ms）', 'number'],
+  ['cache.ttlTimeSensitiveMs', '缓存 TTL（时效·ms）', 'number'],
+  ['session.ttlMs', '会话 TTL（ms）', 'number'],
+  ['rateLimit.perIpDaily', '单 IP 日限流', 'number'],
+];
+
+async function loadConfig() {
+  const data = await api('/admin/config');
+  const el = $('config');
+  let html = '<table><thead><tr><th>字段</th><th>当前值</th></tr></thead><tbody>';
+  for (const [key, label, type] of MUTABLE_FIELDS) {
+    const v = data.mutable[key];
+    html += `<tr><td>${label}<br><code>${key}</code></td>`
+      + `<td><input type="${type}" data-key="${key}" value="${String(v)}" /></td></tr>`;
+  }
+  html += '</tbody></table>';
+  html += '<table style="margin-top:14px;"><thead><tr><th>密钥（脱敏）</th><th>值</th></tr></thead><tbody>';
+  const secretLabels = {
+    deepseekApiKey: 'DeepSeek API Key',
+    zhihuAccessSecret: '知乎 Access Secret',
+    zhihuOauthAppKey: 'OAuth App Key',
+    zhihuCommunityAppKey: '社区 App Key',
+    zhihuCommunityAppSecret: '社区 App Secret',
+  };
+  for (const [k, v] of Object.entries(data.secrets)) {
+    html += `<tr><td>${secretLabels[k] || k}</td><td class="masked">${v}</td></tr>`;
+  }
+  html += '</tbody></table>';
+  html += `<p style="font-size:12px;color:#8590a6;margin:10px 0 0;">运行标志：mock=${data.flags.mock} · devCapture=${data.flags.devCapture} · storage=${data.flags.storageMode}</p>`;
+  el.innerHTML = html;
+}
+
+async function saveConfig() {
+  const patch = {};
+  $('config').querySelectorAll('input[data-key]').forEach((inp) => {
+    const key = inp.dataset.key;
+    const type = inp.type;
+    const raw = inp.value.trim();
+    if (raw === '') return;
+    patch[key] = type === 'number' ? Number(raw) : raw;
+  });
+  try {
+    await api('/admin/config', { method: 'POST', body: JSON.stringify(patch) });
+    msg('configMsg', '已保存', true);
+    await loadConfig();
+  } catch (e) {
+    msg('configMsg', String(e.message || e), false);
+  }
+}
+
+// ③ 使用数据
+async function loadUsage() {
+  const d = await api('/admin/usage');
+  const pct = d.cache.hitRate === null ? '—' : Math.round(d.cache.hitRate * 100) + '%';
+  const quota = d.quotaRemaining === null ? 'mock 模式' : d.quotaRemaining;
+  const stats = [
+    ['总调用', d.calls.total],
+    ['explain', d.calls.explain],
+    ['followup', d.calls.followup],
+    ['换角度', d.calls.reangle],
+    ['直答', d.calls.zhida],
+    ['搜索API', d.apis.zhihuSearch],
+    ['热榜API', d.apis.hotList],
+    ['全网API', d.apis.globalSearch],
+    ['社区API', d.apis.community],
+    ['OAuth', d.apis.oauth],
+    ['缓存命中率', pct],
+    ['额度剩余', quota],
+    ['限流触发', d.rateLimited],
+  ];
+  const apiValues = Object.values(d.apis || {});
+  const allApiZero = apiValues.length > 0 && apiValues.every((v) => v === 0);
+  const header = `<div style="font-size:12px;color:#8590a6;margin-bottom:10px;">上次更新：${new Date().toLocaleString()}</div>`;
+  const hint = allApiZero ? '<div style="color:#f1403c;font-size:12px;margin-bottom:10px;">本地尚未有真实调用</div>' : '';
+  $('usage').innerHTML = header + hint + stats.map(([label, num]) =>
+    `<div class="stat"><div class="num">${num}</div><div class="label">${label}</div></div>`).join('');
+}
+
+// ⑤ 运行错误
+async function loadErrors() {
+  const d = await api('/admin/errors');
+  const el = $('errors');
+  const counts = Object.entries(d.byType || {}).map(([t, n]) =>
+    `<div class="stat"><div class="num">${n}</div><div class="label"><code>${esc(t)}</code></div></div>`).join('');
+  const list = (d.errors || []).map((e) =>
+    `<div style="font-size:12px;padding:6px 0;border-bottom:1px solid #f0f0f0;">
+      <div style="color:#8590a6;">${new Date(e.timestamp).toLocaleString()} · <code>${esc(e.type)}</code></div>
+      <div style="color:#f1403c;word-break:break-all;">${esc(e.message)}</div>
+    </div>`).join('');
+  el.innerHTML = (counts ? `<div class="stats" style="margin-bottom:12px;">${counts}</div>` : '')
+    + (list || '<div style="color:#8590a6;font-size:13px;">暂无运行错误</div>');
+}
+
+// ④ 存储管理
+async function loadStorage() {
+  const d = await api('/admin/storage');
+  const el = $('storage');
+  const cacheKeys = (d.cache.entries || []).slice(0, 20).map((k) => `<code>${k}</code>`).join(', ') || '（空）';
+  const dev = (d.devCapture.entries || []).slice(0, 20).map((e) =>
+    `<div style="font-size:12px;color:#666;padding:2px 0;"><code>${e.ts}</code> ${e.target.slice(0, 60)}</div>`).join('') || '（空）';
+  el.innerHTML = `
+    <table><tbody>
+      <tr><td>缓存 JSONL</td><td><strong>${d.cache.count}</strong> 条</td>
+        <td><button class="danger" data-clear="cache">清空</button></td></tr>
+      <tr><td>dev-capture 日志</td><td><strong>${d.devCapture.count}</strong> 条</td>
+        <td><button class="danger" data-clear="devCapture">删除</button></td></tr>
+      <tr><td>session</td><td><strong>${d.sessions.count}</strong> 个</td>
+        <td><button class="danger" data-clear="sessions">清理</button></td></tr>
+    </tbody></table>
+    <h3 style="font-size:13px;margin:14px 0 6px;">缓存 key（前 20）</h3>
+    <div style="font-size:12px;color:#666;word-break:break-all;">${cacheKeys}</div>
+    <h3 style="font-size:13px;margin:14px 0 6px;">dev-capture 条目（前 20）</h3>
+    <div>${dev}</div>`;
+  el.querySelectorAll('button[data-clear]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('确认 ' + btn.dataset.clear + ' 清理？此操作不可撤销。')) return;
+      try {
+        await api('/admin/storage/clear', { method: 'POST', body: JSON.stringify({ target: btn.dataset.clear }) });
+        await loadStorage();
+      } catch (e) { alert(String(e.message || e)); }
+    });
+  });
+}
+
+async function refreshAll() {
+  try {
+    await Promise.all([loadFeatures(), loadConfig(), loadUsage(), loadStorage(), loadErrors()]);
+    msg('configMsg', '已刷新', true);
+  } catch (e) {
+    msg('configMsg', String(e.message || e), false);
+  }
+}
+
+$('token').value = getToken();
+$('applyToken').addEventListener('click', () => { setToken($('token').value.trim()); refreshAll(); });
+$('clearToken').addEventListener('click', () => { clearToken(); $('token').value = ''; msg('configMsg', '已清除令牌', true); });
+$('saveConfig').addEventListener('click', saveConfig);
+$('refreshUsage').addEventListener('click', loadUsage);
+$('refreshErrors').addEventListener('click', loadErrors);
+
+refreshAll();
+</script>
+</body>
+</html>
