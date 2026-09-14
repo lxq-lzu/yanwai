@@ -24,7 +24,7 @@ function num(v: string | undefined, fallback: number): number {
 
 export const config = {
   port: num(process.env.PORT, 8787),
-  /** 监听地址。默认 127.0.0.1(安全);nginx 容器访问宿主机时设 HOST=172.18.0.1。 */
+  /** 监听地址。默认 127.0.0.1(安全);经反向代理访问时用环境变量 HOST 覆盖。 */
   host: process.env.HOST ?? '127.0.0.1',
 
   /**

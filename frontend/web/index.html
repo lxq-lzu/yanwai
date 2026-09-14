@@ -17,7 +17,7 @@
   })();
 </script>
 <style>
-/* ============ 主题变量（沿用 lixq.net 纯色极简基调） ============ */
+/* ============ 主题变量（纯色极简基调） ============ */
 :root {
   --nav-h: 60px;
   --handle-h: 36px;
@@ -131,7 +131,7 @@ button { font: inherit; color: inherit; }
   border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
   overflow: hidden; display: flex; align-items: center; justify-content: center;
 }
-.video-frame video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.video-frame video { display: block; width: 100%; height: 100%; object-fit: contain; }
 .video-placeholder { text-align: center; color: var(--text-tertiary); padding: 20px; }
 .video-placeholder .ph-icon { font-size: 34px; margin-bottom: 10px; }
 .video-placeholder p { font-size: 15px; }
@@ -311,11 +311,7 @@ footer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 10
     <h1 class="hero__name"><em>言外</em></h1>
     <p class="hero__tagline">知乎划词选句，理解言外之意</p>
     <div class="video-frame">
-      <!-- TODO: 用户录制后替换 demo.mp4 -->
-      <div class="video-placeholder">
-        <div class="ph-icon">🎬</div>
-        <p>演示视频即将上线</p>
-      </div>
+      <video src="/demo.mp4" controls preload="metadata" playsinline></video>
     </div>
   </section>
 </main>
